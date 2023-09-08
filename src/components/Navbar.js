@@ -70,7 +70,7 @@ const Navbar = () => {
                                 </ul>
                             </details>
                         </li>
-                        <li><a>About</a></li>
+                        <li><Link href={"/about"}>About</Link></li>
                     </ul>
                 </div>
                 <Link href={"/"} className="btn btn-ghost normal-case text-xl">Weather App</Link>
