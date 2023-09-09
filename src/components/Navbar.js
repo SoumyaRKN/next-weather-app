@@ -110,7 +110,7 @@ const Navbar = () => {
                 </ul>
             </div>
             <div className="navbar-end">
-                <form onSubmit={(e) => { e.preventDefault(); handelSearch(document.getElementById("cityName").value); e.target.reset; }}>
+                <form onSubmit={(e) => { e.preventDefault(); handelSearch(document.getElementById("cityName").value); document.getElementById("cityName").value = ""; }}>
                     <div className="flex items-center">
                         <input type="text" className="input input-sm input-bordered me-2" placeholder="Enter City Name" id="cityName" />
                         <button type='submit' className="btn btn-sm btn-outline btn-neutral">Search</button>
