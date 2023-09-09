@@ -6,7 +6,7 @@ const Navbar = () => {
     const { setWeatherData } = useContext(weatherContext);
 
     const getWeatherData = async (latitude, longitude) => {
-        fetch(`${process.env.NEXT_PUBLIC_HOST}/api/getCurrentLocationWeather`, {
+        fetch(`/api/getCurrentLocationWeather`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -29,7 +29,7 @@ const Navbar = () => {
         if (city === "") {
             alert("Please enter a value!")
         } else {
-            fetch(`${process.env.NEXT_PUBLIC_HOST}/api/getCurrentLocationWeather`, {
+            fetch(`/api/getCurrentLocationWeather`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

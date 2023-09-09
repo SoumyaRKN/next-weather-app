@@ -10,7 +10,7 @@ export default function Home() {
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
-        fetch(`${process.env.NEXT_PUBLIC_HOST}/api/getCurrentLocationWeather`, {
+        fetch(`/api/getCurrentLocationWeather`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
