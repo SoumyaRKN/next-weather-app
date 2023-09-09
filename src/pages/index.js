@@ -1,11 +1,16 @@
-import React, { useContext, useEffect } from 'react';
 import { Inter } from 'next/font/google';
+import React, { useContext, useEffect } from 'react';
 import weatherContext from '@/context/weathercontext';
+import spinnerContext from '@/context/spinnercontext';
+import { CirclesWithBar } from 'react-loader-spinner';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
   const { weatherData, setWeatherData } = useContext(weatherContext);
+  const { isSpinner, setisSpinner } = useContext(spinnerContext);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -23,90 +28,122 @@ export default function Home() {
         }).then(response => response.json()).then(res => {
           if (res.success) {
             setWeatherData(res.data);
-            console.log(res);
+            setisSpinner(false);
           } else {
-            alert("SOMTHING WENT WRONG! PLEASE TRY AGAIN");
+            setisSpinner(false);
+            toast.error("Something went wrong!");
           }
-        }).catch(error => console.error('Error:', error));
+        }).catch(error => {
+          setisSpinner(false);
+          console.error('Error:', error);
+          toast.error("Something went wrong!");
+        });
       });
     } else {
-      alert("Geolocation is not supported by this browser.");
+      setisSpinner(false);
+      toast.error("Geolocation is not supported by this browser!");
     }
   }, []);
 
   return (
-    weatherData && <div className="main-container flex flex-col items-center justify-center text-gray-700 p-10 bg-gradient-to-br from-pink-200 via-purple-200 to-indigo-200">
+    <>
+      <ToastContainer
+        position="top-left"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
 
-      <div className="w-full max-w-screen-sm bg-white p-10 rounded-xl ring-8 ring-white ring-opacity-40">
-        <div className="flex justify-between">
-          <div className="flex flex-col">
-            <span className="text-6xl font-bold">{weatherData.current.temp_c}°C</span>
-            <span className="font-semibold mt-1 text-gray-500">{`${weatherData.location.name}, ${weatherData.location.region}`}</span>
-          </div>
-          <img src={weatherData.current.condition.icon} alt={weatherData.current.condition.text} />
-        </div>
-        <div className="flex justify-between mt-12">
-          {weatherData.forecast.forecastday.hours.map(item => {
-            const time = new Date(item.time);
-            const fullTime = `${time.getHours() === 0 ? "12" : time.getHours() % 12 || 12}:${time.getMinutes() === 0 ? '00' : time.getMinutes()}`;
+      {isSpinner && <CirclesWithBar
+        height="200"
+        width="200"
+        color="#0534ae"
+        wrapperStyle={{
+          minHeight: "81.8vh"
+        }}
+        wrapperClass="justify-center items-center bg-gradient-to-br from-indigo-100 to-neutral-200"
+        ariaLabel='circles-with-bar-loading'
+      />}
 
-            return <div className="flex flex-col items-center" key={item.time}>
-              <span className="font-semibold text-lg">{item.temp_c}°C</span>
-              <img src={item.condition.icon} alt={item.condition.text} />
-              <span className="font-semibold mt-1 text-sm">{fullTime}</span>
-              <span className="text-xs font-semibold text-gray-400">{time.getHours() >= 12 ? "PM" : "AM"}</span>
+      {weatherData && !isSpinner && <div className="main-containe flex flex-col items-center justify-center text-gray-700 p-10 bg-gradient-to-br from-indigo-100 to-neutral-200">
+
+        <div className="w-full max-w-screen-sm bg-white p-10 rounded-xl ring-8 ring-white ring-opacity-40">
+          <div className="flex justify-between">
+            <div className="flex flex-col">
+              <span className="text-6xl font-bold">{weatherData.current.temp_c}°C</span>
+              <span className="font-semibold mt-1 text-gray-500">{`${weatherData.location.name}, ${weatherData.location.region}`}</span>
             </div>
-          })}
-        </div>
-      </div>
+            <img src={weatherData.current.condition.icon} alt={weatherData.current.condition.text} />
+          </div>
+          <div className="flex justify-between flex-wrap mt-12">
+            {weatherData.forecast.forecastday.hours.map(item => {
+              const time = new Date(item.time);
+              const fullTime = `${time.getHours() === 0 ? "12" : time.getHours() % 12 || 12}:${time.getMinutes() === 0 ? '00' : time.getMinutes()}`;
 
-      <div className="flex flex-col space-y-6 w-full max-w-screen-sm bg-white p-10 mt-10 rounded-xl ring-8 ring-white ring-opacity-40">
-        <div class="flex justify-between w-full">
-          <div class="w-auto font-bold uppercase text-90">Humidity</div>
-          <div class="w-auto text-right font-semibold">{weatherData.current.humidity}</div>
+              return <div className="flex flex-col items-center my-3" key={item.time}>
+                <span className="font-semibold text-lg">{item.temp_c}°C</span>
+                <img src={item.condition.icon} alt={item.condition.text} />
+                <span className="font-semibold mt-1 text-sm">{fullTime}</span>
+                <span className="text-xs font-semibold text-gray-400">{time.getHours() >= 12 ? "PM" : "AM"}</span>
+              </div>
+            })}
+          </div>
         </div>
-        <div class="flex justify-between w-full">
-          <div class="w-auto font-bold uppercase text-90">Pressure</div>
-          <div class="w-auto text-right font-semibold">{weatherData.current.pressure_mb} MB</div>
-        </div>
-        <div class="flex justify-between w-full">
-          <div class="w-auto font-bold uppercase text-90">Wind Speed</div>
-          <div class="w-auto text-right font-semibold">{weatherData.current.wind_kph} KPH</div>
-        </div>
-        <div class="flex justify-between w-full">
-          <div class="w-auto font-bold uppercase text-90">Average Temperature</div>
-          <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.day.avgtemp_c}°C</div>
-        </div>
-        <div class="flex justify-between w-full">
-          <div class="w-auto font-bold uppercase text-90">Maximum Temperature</div>
-          <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.day.maxtemp_c}°C</div>
-        </div>
-        <div class="flex justify-between w-full">
-          <div class="w-auto font-bold uppercase text-90">Minimum Temperature</div>
-          <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.day.mintemp_c}°C</div>
-        </div>
-        <div class="flex justify-between w-full">
-          <div class="w-auto font-bold uppercase text-90">Maximum Wind Speed</div>
-          <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.day.maxwind_kph} KPH</div>
-        </div>
-        <div class="flex justify-between w-full">
-          <div class="w-auto font-bold uppercase text-90">Sunrise</div>
-          <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.astro.sunrise}</div>
-        </div>
-        <div class="flex justify-between w-full">
-          <div class="w-auto font-bold uppercase text-90">Sunset</div>
-          <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.astro.sunset}</div>
-        </div>
-        <div class="flex justify-between w-full">
-          <div class="w-auto font-bold uppercase text-90">Moonrise</div>
-          <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.astro.moonrise}</div>
-        </div>
-        <div class="flex justify-between w-full">
-          <div class="w-auto font-bold uppercase text-90">Moonset</div>
-          <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.astro.moonset}</div>
-        </div>
-      </div>
 
-    </div>
+        <div className="flex flex-col space-y-6 w-full max-w-screen-sm bg-white p-10 mt-10 rounded-xl ring-8 ring-white ring-opacity-40">
+          <div class="flex justify-between w-full">
+            <div class="w-auto font-bold uppercase text-90">Humidity</div>
+            <div class="w-auto text-right font-semibold">{weatherData.current.humidity}</div>
+          </div>
+          <div class="flex justify-between w-full">
+            <div class="w-auto font-bold uppercase text-90">Pressure</div>
+            <div class="w-auto text-right font-semibold">{weatherData.current.pressure_mb} MB</div>
+          </div>
+          <div class="flex justify-between w-full">
+            <div class="w-auto font-bold uppercase text-90">Wind Speed</div>
+            <div class="w-auto text-right font-semibold">{weatherData.current.wind_kph} KPH</div>
+          </div>
+          <div class="flex justify-between w-full">
+            <div class="w-auto font-bold uppercase text-90">Average Temperature</div>
+            <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.day.avgtemp_c}°C</div>
+          </div>
+          <div class="flex justify-between w-full">
+            <div class="w-auto font-bold uppercase text-90">Maximum Temperature</div>
+            <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.day.maxtemp_c}°C</div>
+          </div>
+          <div class="flex justify-between w-full">
+            <div class="w-auto font-bold uppercase text-90">Minimum Temperature</div>
+            <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.day.mintemp_c}°C</div>
+          </div>
+          <div class="flex justify-between w-full">
+            <div class="w-auto font-bold uppercase text-90">Maximum Wind Speed</div>
+            <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.day.maxwind_kph} KPH</div>
+          </div>
+          <div class="flex justify-between w-full">
+            <div class="w-auto font-bold uppercase text-90">Sunrise</div>
+            <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.astro.sunrise}</div>
+          </div>
+          <div class="flex justify-between w-full">
+            <div class="w-auto font-bold uppercase text-90">Sunset</div>
+            <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.astro.sunset}</div>
+          </div>
+          <div class="flex justify-between w-full">
+            <div class="w-auto font-bold uppercase text-90">Moonrise</div>
+            <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.astro.moonrise}</div>
+          </div>
+          <div class="flex justify-between w-full">
+            <div class="w-auto font-bold uppercase text-90">Moonset</div>
+            <div class="w-auto text-right font-semibold">{weatherData.forecast.forecastday.astro.moonset}</div>
+          </div>
+        </div>
+
+      </div>}
+    </>
   );
 }
