@@ -74,12 +74,15 @@ export default function Home() {
       {weatherData && !isSpinner && <div className="main-containe flex flex-col items-center justify-center text-gray-700 p-10 bg-gradient-to-br from-indigo-100 to-neutral-200">
 
         <div className="w-full max-w-screen-sm bg-white p-10 rounded-xl ring-8 ring-white ring-opacity-40">
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <div className="flex flex-col">
               <span className="text-6xl font-bold">{weatherData.current.temp_c}°C</span>
               <span className="font-semibold mt-1 text-gray-500">{`${weatherData.location.name}, ${weatherData.location.region}`}</span>
             </div>
-            <img src={weatherData.current.condition.icon} alt={weatherData.current.condition.text} />
+            <div className="flex flex-col items-center">
+              <img src={weatherData.current.condition.icon} alt={weatherData.current.condition.text} />
+              <span className="font-semibold mt-1 text-gray-500">{weatherData.current.condition.text}</span>
+            </div>
           </div>
           <div className="flex justify-between flex-wrap mt-12">
             {weatherData.forecast.forecastday.hours.map(item => {
@@ -89,6 +92,7 @@ export default function Home() {
               return <div className="flex flex-col items-center my-3" key={item.time}>
                 <span className="font-semibold text-lg">{item.temp_c}°C</span>
                 <img src={item.condition.icon} alt={item.condition.text} />
+                <span className="font-semibold my-1 text-sm">{item.condition.text}</span>
                 <span className="font-semibold mt-1 text-sm">{fullTime}</span>
                 <span className="text-xs font-semibold text-gray-400">{time.getHours() >= 12 ? "PM" : "AM"}</span>
               </div>
