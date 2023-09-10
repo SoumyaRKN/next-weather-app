@@ -15,6 +15,7 @@ export default function Home() {
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
+        console.log(position.coords.latitude,position.coords.longitude)
         fetch(`/api/getCurrentLocationWeather`, {
           method: 'POST',
           headers: {
